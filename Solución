@@ -1,0 +1,241 @@
+# Combinar todas las tiendas en un solo DataFrame
+todas_tiendas = pd.concat([tienda, tienda2, tienda3, tienda4], ignore_index=True)
+
+# Convertir fecha a formato datetime
+todas_tiendas['Fecha de Compra'] = pd.to_datetime(todas_tiendas['Fecha de Compra'], dayfirst=True)
+
+# Calcular facturación total por venta (precio + costo de envío)
+todas_tiendas['Facturación'] = todas_tiendas['Precio'] + todas_tiendas['Costo de envío']
+facturacion_total = todas_tiendas['Facturación'].sum()
+print(f"Facturación total: ${facturacion_total:,.2f}")
+tienda['Tienda'] = 'Tienda 1'
+tienda2['Tienda'] = 'Tienda 2'
+tienda3['Tienda'] = 'Tienda 3'
+tienda4['Tienda'] = 'Tienda 4'
+
+todas_tiendas = pd.concat([tienda, tienda2, tienda3, tienda4])
+facturacion_por_tienda = todas_tiendas.groupby('Tienda')['Facturación'].sum().sort_values(ascending=False)
+print(facturacion_por_tienda)
+# Facturación por año y mes
+todas_tiendas['Año'] = todas_tiendas['Fecha de Compra'].dt.year
+todas_tiendas['Mes'] = todas_tiendas['Fecha de Compra'].dt.month
+facturacion_mensual = todas_tiendas.groupby(['Año', 'Mes'])['Facturación'].sum()
+facturacion_por_categoria = todas_tiendas.groupby('Categoría del Producto')['Facturación'].sum().sort_values(ascending=False)
+facturacion_por_ciudad = todas_tiendas.groupby('Lugar de Compra')['Facturación'].sum().sort_values(ascending=False)
+facturacion_por_metodo_pago = todas_tiendas.groupby('Método de pago')['Facturación'].sum()
+//VENTAS POR CATEGORIAS
+# Combinamos todas las tiendas si no lo hemos hecho antes
+todas_tiendas = pd.concat([tienda, tienda2, tienda3, tienda4], ignore_index=True)
+
+# Calculamos la facturación total por venta (precio + envío)
+todas_tiendas['Facturación'] = todas_tiendas['Precio'] + todas_tiendas['Costo de envío']
+
+# Agrupamos por categoría
+ventas_por_categoria = todas_tiendas.groupby('Categoría del Producto').agg({
+    'Facturación': 'sum',
+    'Producto': 'count'
+}).rename(columns={'Producto': 'Cantidad de Ventas'}).sort_values('Facturación', ascending=False)
+print(ventas_por_categoria)
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12, 6))
+
+# Gráfico de facturación por categoría
+plt.subplot(1, 2, 1)
+ventas_por_categoria['Facturación'].plot(kind='bar', color='skyblue')
+plt.title('Facturación por Categoría')
+plt.ylabel('Facturación Total')
+plt.xticks(rotation=45)
+
+# Gráfico de cantidad de ventas por categoría
+plt.subplot(1, 2, 2)
+ventas_por_categoria['Cantidad de Ventas'].plot(kind='bar', color='lightgreen')
+plt.title('Cantidad de Ventas por Categoría')
+plt.ylabel('Número de Ventas')
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+plt.show()
+# Porcentaje de contribución por categoría
+ventas_por_categoria['Porcentaje'] = (ventas_por_categoria['Facturación'] / ventas_por_categoria['Facturación'].sum()) * 100
+
+# Valor promedio por venta por categoría
+ventas_por_categoria['Valor Promedio'] = ventas_por_categoria['Facturación'] / ventas_por_categoria['Cantidad de Ventas']
+
+print(ventas_por_categoria.sort_values('Facturación', ascending=False))
+//CALIFICACAION PROMEDIO DE LA TIENDA 
+# Asignar identificador de tienda a cada conjunto de datos
+tienda['Tienda'] = 'Tienda 1'
+tienda2['Tienda'] = 'Tienda 2'
+tienda3['Tienda'] = 'Tienda 3'
+tienda4['Tienda'] = 'Tienda 4'
+
+# Combinar todos los datos
+todas_tiendas = pd.concat([tienda, tienda2, tienda3, tienda4], ignore_index=True)
+# Calcular calificación promedio por tienda
+calificacion_promedio = todas_tiendas.groupby('Tienda')['Calificación'].agg(['mean', 'count', 'std'])
+
+# Renombrar columnas para mayor claridad
+calificacion_promedio = calificacion_promedio.rename(columns={
+    'mean': 'Calificación Promedio',
+    'count': 'Número de Evaluaciones',
+    'std': 'Desviación Estándar'
+})
+
+# Ordenar de mayor a menor calificación
+calificacion_promedio = calificacion_promedio.sort_values('Calificación Promedio', ascending=False)
+
+print(calificacion_promedio)
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+
+# Gráfico de barras para la calificación promedio
+sns.barplot(data=todas_tiendas, x='Tienda', y='Calificación', 
+            estimator='mean', errorbar=None, palette='viridis')
+plt.title('Calificación Promedio por Tienda')
+plt.ylabel('Calificación Promedio (1-5)')
+plt.ylim(0, 5)  # Establecer límites para escala de 1 a 5
+plt.axhline(y=todas_tiendas['Calificación'].mean(), color='red', linestyle='--', 
+            label='Promedio General')
+plt.legend()
+plt.show()
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=todas_tiendas, x='Tienda', y='Calificación', palette='Set2')
+plt.title('Distribución de Calificaciones por Tienda')
+plt.ylabel('Calificación')
+plt.xlabel('Tienda')
+plt.show()
+# Calcular porcentajes
+calificacion_distribucion = todas_tiendas.groupby(['Tienda', 'Calificación']).size().unstack().fillna(0)
+calificacion_distribucion_pct = calificacion_distribucion.div(calificacion_distribucion.sum(axis=1), axis=0) * 100
+
+# Graficar
+calificacion_distribucion_pct.plot(kind='bar', stacked=True, figsize=(12, 6))
+plt.title('Distribución Porcentual de Calificaciones por Tienda')
+plt.ylabel('Porcentaje (%)')
+plt.xlabel('Tienda')
+plt.legend(title='Calificación', bbox_to_anchor=(1.05, 1))
+plt.show()
+//PRODUCTOS MAS Y MENOS VENDIDOS
+# Combinar todas las tiendas si no se ha hecho antes
+todas_tiendas = pd.concat([tienda, tienda2, tienda3, tienda4], ignore_index=True)
+
+# Agrupar por producto y contar las ventas
+ventas_por_producto = todas_tiendas.groupby('Producto').agg({
+    'Cantidad de cuotas': 'count',  # Usamos este campo para contar las ventas
+    'Precio': 'mean',
+    'Categoría del Producto': 'first'
+}).rename(columns={'Cantidad de cuotas': 'Número de Ventas', 'Precio': 'Precio Promedio'})
+
+# Ordenar por número de ventas
+ventas_por_producto = ventas_por_producto.sort_values('Número de Ventas', ascending=False)
+top_10_mas_vendidos = ventas_por_producto.head(10)
+print("TOP 10 PRODUCTOS MÁS VENDIDOS")
+print(top_10_mas_vendidos[['Número de Ventas', 'Precio Promedio', 'Categoría del Producto']])
+top_10_menos_vendidos = ventas_por_producto.tail(10)
+print("\nTOP 10 PRODUCTOS MENOS VENDIDOS")
+print(top_10_menos_vendidos[['Número de Ventas', 'Precio Promedio', 'Categoría del Producto']])
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(14, 8))
+
+# Gráfico de productos más vendidos
+plt.subplot(1, 2, 1)
+top_10_mas_vendidos['Número de Ventas'].plot(kind='barh', color='green')
+plt.title('Top 10 Productos Más Vendidos')
+plt.xlabel('Número de Ventas')
+plt.ylabel('Producto')
+
+# Gráfico de productos menos vendidos
+plt.subplot(1, 2, 2)
+top_10_menos_vendidos['Número de Ventas'].plot(kind='barh', color='red')
+plt.title('Top 10 Productos Menos Vendidos')
+plt.xlabel('Número de Ventas')
+plt.ylabel('Producto')
+
+plt.tight_layout()
+plt.show()
+# Categorías con más productos vendidos
+categorias_mas_vendidas = todas_tiendas.groupby('Categoría del Producto').size().sort_values(ascending=False).head(5)
+
+# Categorías con menos productos vendidos
+categorias_menos_vendidas = todas_tiendas.groupby('Categoría del Producto').size().sort_values(ascending=True).head(5)
+
+print("\nTOP 5 CATEGORÍAS MÁS VENDIDAS")
+print(categorias_mas_vendidas)
+
+print("\nTOP 5 CATEGORÍAS MENOS VENDIDAS")
+print(categorias_menos_vendidas)
+plt.figure(figsize=(10, 6))
+plt.scatter(ventas_por_producto['Número de Ventas'], ventas_por_producto['Precio Promedio'], alpha=0.5)
+plt.title('Relación entre Precio y Volumen de Ventas')
+plt.xlabel('Número de Ventas')
+plt.ylabel('Precio Promedio')
+plt.grid(True)
+plt.show()
+//ENVIO PROMEDIO DE LA TIENDA 
+# Asignar identificador de tienda si no se ha hecho antes
+tienda['Tienda'] = 'Tienda 1'
+tienda2['Tienda'] = 'Tienda 2'
+tienda3['Tienda'] = 'Tienda 3'
+tienda4['Tienda'] = 'Tienda 4'
+
+# Combinar todos los datos
+todas_tiendas = pd.concat([tienda, tienda2, tienda3, tienda4], ignore_index=True)
+
+# Calcular estadísticas de envío por tienda
+envio_por_tienda = todas_tiendas.groupby('Tienda')['Costo de envío'].agg(['mean', 'median', 'std', 'count'])
+
+# Renombrar columnas
+envio_por_tienda = envio_por_tienda.rename(columns={
+    'mean': 'Costo Promedio',
+    'median': 'Costo Mediano',
+    'std': 'Desviación Estándar',
+    'count': 'Total Envíos'
+})
+
+# Formatear los números para mejor visualización
+envio_por_tienda['Costo Promedio'] = envio_por_tienda['Costo Promedio'].round(2)
+envio_por_tienda['Costo Mediano'] = envio_por_tienda['Costo Mediano'].round(2)
+envio_por_tienda['Desviación Estándar'] = envio_por_tienda['std'].round(2)
+
+print(envio_por_tienda[['Costo Promedio', 'Costo Mediano', 'Desviación Estándar', 'Total Envíos']])
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(12, 6))
+
+# Gráfico de costo promedio de envío por tienda
+sns.barplot(data=todas_tiendas, x='Tienda', y='Costo de envío', 
+            estimator='mean', errorbar=None, palette='Blues_d')
+plt.title('Costo Promedio de Envío por Tienda')
+plt.ylabel('Costo Promedio de Envío (COP)')
+plt.xlabel('Tienda')
+plt.axhline(y=todas_tiendas['Costo de envío'].mean(), color='red', linestyle='--', 
+            label='Promedio General')
+plt.legend()
+plt.show()
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=todas_tiendas, x='Tienda', y='Costo de envío', palette='Set3')
+plt.title('Distribución de Costos de Envío por Tienda')
+plt.ylabel('Costo de Envío (COP)')
+plt.xlabel('Tienda')
+plt.show()
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=todas_tiendas, x='Precio', y='Costo de envío', hue='Tienda', alpha=0.6)
+plt.title('Relación entre Precio del Producto y Costo de Envío')
+plt.xlabel('Precio del Producto (COP)')
+plt.ylabel('Costo de Envío (COP)')
+plt.grid(True)
+plt.show()
+envio_por_categoria = todas_tiendas.groupby('Categoría del Producto')['Costo de envío'].mean().sort_values(ascending=False)
+
+plt.figure(figsize=(10, 5))
+envio_por_categoria.plot(kind='bar', color='teal')
+plt.title('Costo Promedio de Envío por Categoría de Producto')
+plt.ylabel('Costo Promedio de Envío (COP)')
+plt.xlabel('Categoría del Producto')
+plt.xticks(rotation=45)
+plt.show()
